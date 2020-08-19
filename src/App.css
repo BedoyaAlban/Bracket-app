@@ -1,3 +1,35 @@
 .App {
   text-align: center;
 }
+
+.tournament-date {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.general-bracket {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 1em 0;
+  padding: 0 1em;
+  display: flex;
+}
+
+.bracket-initial {
+  box-sizing: border-box;
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 1em;
+  justify-content: space-around;
+  overflow: hidden;
+}
+
+.bracket {
+  background-color: #fff;
+  border-radius: .5em;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
