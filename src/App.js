@@ -1,13 +1,18 @@
 import React, { useState } from "react";
+import DatePicker from "react-date-picker";
 import "./App.css";
 
 const App = () => {
   const [tournament, setTournament] = useState({
     tournamentName: "",
-    startingDate: "",
-    endingDate: "",
-    numberOfTeams: 0
+    startingDate: new Date(),
+    endingDate: new Date(),
+    numbTeams: 0
   });
+  const [show, setShow] = useState(false);
+  const [dateStart, setDateStart] = useState(false);
+  const [dateEnd, setDateEnd] = useState(false);
+  const [oddNumber, setOddNumber] = useState(false);
 
   const [numberTeams, setNumberTeams] = useState();
   const [grids, setGrids] = useState();
@@ -38,6 +43,7 @@ const App = () => {
         }
       }
     }
+    setShow(true);
   };
 
   const loop = entry => {
@@ -61,31 +67,48 @@ const App = () => {
     });
   };
 
-  const HandleChangeTSDate = event => {
+  const HandleChangeTSDate = date => {
+    if (Date.parse(date) < Date.now()) {
+      setDateStart(true);
+    } else {
+      setDateStart(false);
+    }
     setTournament({
       ...tournament,
-      startingDate: event.target.value
+      startingDate: date
     });
   };
 
-  const HandleChangeTEDate = event => {
+  const HandleChangeTEDate = date => {
+    if (
+      tournament.startingDate &&
+      Date.parse(date) < Date.parse(tournament.startingDate)
+    ) {
+      setDateEnd(true);
+    } else {
+      setDateEnd(false);
+    }
     setTournament({
       ...tournament,
-      endingDate: event.target.value
+      endingDate: date
     });
   };
 
   const HandleChangeNumbTeams = event => {
+    if (!isEven(event.target.value)) {
+      setOddNumber(true);
+    } else {
+      setOddNumber(false);
+    }
     setNumberTeams(event.target.value);
-    setTournament({
-      ...tournament,
-      numberOfTeams: event.target.value
-    });
+  };
+
+  const isEven = value => {
+    if (value % 2 === 0) return true;
+    else return false;
   };
 
   /* TODO LIST:
-  - User can see a warning if either the starting or ending date is invalid
-  - User can see a warning if an odd number of competing teams is entered
   - User can enter the date for each match
   - User can enter the final score for each match
   - User can expect that this data will persist across sessions
@@ -95,149 +118,191 @@ const App = () => {
     <div className="App">
       <div className="container">
         <h1>Create Bracket Tournament</h1>
-        <div className="form-group">
-          <div className="input-group mb-1">
-            <div className="input-group-prepend">
-              <span className="input-group-text" id="basic-addon1">
-                Tournament-Name
-              </span>
+        {show ? null : (
+          <section>
+            <div className="form-group">
+              <div className="input-group mb-1">
+                <div className="input-group-prepend">
+                  <span className="input-group-text" id="basic-addon1">
+                    Tournament-Name
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  name="tournamentName"
+                  className="form-control"
+                  placeholder="Tournament-Name"
+                  aria-label="Tournament-Name"
+                  aria-describedby="basic-addon1"
+                  value={tournament.tournamentName}
+                  onChange={HandleChangeTName}
+                />
+              </div>
             </div>
-            <input
-              type="text"
-              name="tournamentName"
-              className="form-control"
-              placeholder="Tournament-Name"
-              aria-label="Tournament-Name"
-              aria-describedby="basic-addon1"
-              value={tournament.tournamentName}
-              onChange={HandleChangeTName}
-            />
-          </div>
-        </div>
-        <div className="form-group">
-          <div className="input-group mb-1">
-            <div className="input-group-prepend">
-              <span className="input-group-text" id="basic-addon1">
-                Starting-Date / Ending-Date
-              </span>
+            <div className="form-group">
+              <div className="input-group mb-1">
+                <div className="input-group-prepend">
+                  <span className="input-group-text" id="basic-addon1">
+                    Starting-Date / Ending-Date
+                  </span>
+                </div>
+                <DatePicker
+                  value={tournament.startingDate}
+                  onChange={HandleChangeTSDate}
+                />
+                <DatePicker
+                  value={tournament.endingDate}
+                  onChange={HandleChangeTEDate}
+                />
+                <div className="error-message">
+                  {dateStart ? (
+                    <div className="text-danger">
+                      The starting date cannot be before this day!
+                    </div>
+                  ) : null}
+                  {dateEnd ? (
+                    <div className="text-danger">
+                      The Ending date cannot be before the starting date!
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
-            <input
-              type="date"
-              name="startingDate"
-              value={tournament.startingDate}
-              onChange={HandleChangeTSDate}
-              className="form-control"
-              aria-label="startingDate"
-              aria-describedby="basic-addon1"
-            />
-            <input
-              type="date"
-              className="form-control"
-              name="endingDate"
-              value={tournament.endingDate}
-              onChange={HandleChangeTEDate}
-              aria-label="endingDate"
-              aria-describedby="basic-addon1"
-            />
-          </div>
-        </div>
-        <div className="form-group">
-          <div className="input-group mb-1">
-            <div className="input-group-prepend">
-              <span className="input-group-text" id="basic-addon1">
-                Number of Teams
-              </span>
-            </div>
-            <input
-              type="number"
-              name="numberOfTeams"
-              value={tournament.numberOfTeams}
-              onChange={HandleChangeNumbTeams}
-              className="form-control"
-              placeholder="Number-of-Teams"
-              aria-label="Number-of-Teams"
-              aria-describedby="basic-addon1"
-            />
-          </div>
-        </div>
-        <button className="btn btn-primary" onClick={() => initialBracket()}>
-          Generate
-        </button>
-        <section>
-          {tournament ? <h1>{tournament.tournamentName}</h1> : null}
-          <div className="tournament-date">
-            <span>
-              {tournament.startingDate ? (
-                <h2>{tournament.startingDate}</h2>
+            <div className="form-group">
+              <div className="input-group mb-1">
+                <div className="input-group-prepend">
+                  <span className="input-group-text" id="basic-addon1">
+                    Number of Teams
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  name="numberOfTeams"
+                  value={numberTeams}
+                  onChange={HandleChangeNumbTeams}
+                  className="form-control"
+                  placeholder="Number-of-Teams"
+                  aria-label="Number-of-Teams"
+                  aria-describedby="basic-addon1"
+                />
+              </div>
+              {oddNumber ? (
+                <div className="text-danger">Number should be even!</div>
               ) : null}
-            </span>
-            <span>
-              {tournament.endingDate ? <h2>{tournament.endingDate}</h2> : null}
-            </span>
-          </div>
-          <div className="general-bracket">
-            <div className="bracket-initial">
-              {grids
-                ? grids.map(grid => (
+            </div>
+            {oddNumber || dateStart || dateEnd ? (
+              <button
+                className="btn btn-primary"
+                disabled
+                onClick={() => initialBracket()}
+              >
+                Generate
+              </button>
+            ) : (
+              <button
+                className="btn btn-primary"
+                onClick={() => initialBracket()}
+              >
+                Generate
+              </button>
+            )}
+          </section>
+        )}
+
+        {show ? (
+          <section>
+            <h1>Tournament : {tournament.tournamentName}</h1>
+            <div className="tournament-date">
+              {tournament.startingDate ? (
+                <div className="date">
+                  <h6 className="text-success">Start</h6>
+                  <span className="btn btn-outline-success">
+                    {tournament.startingDate.toLocaleDateString()}
+                  </span>
+                </div>
+              ) : null}
+              {tournament.endingDate ? (
+                <div className="date">
+                  <h6 className="text-danger">End</h6>
+                  <span className="btn btn-outline-danger">
+                    {tournament.endingDate.toLocaleDateString()}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+            <div className="general-bracket">
+              {grids ? (
+                <div className="bracket-initial">
+                  {" "}
+                  {grids.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Team Name</span>
                       <input type="text" />
                     </div>
-                  ))
-                : null}
-            </div>
-            <div className="bracket-initial">
-              {grids1
-                ? grids1.map(grid => (
+                  ))}{" "}
+                </div>
+              ) : null}
+              {grids1 ? (
+                <div className="bracket-initial">
+                  {" "}
+                  {grids1.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Team Name</span>
                       <input type="text" />
                     </div>
-                  ))
-                : null}
-            </div>
-            <div className="bracket-initial">
-              {grids2
-                ? grids2.map(grid => (
+                  ))}{" "}
+                </div>
+              ) : null}
+              {grids2 ? (
+                <div className="bracket-initial">
+                  {" "}
+                  {grids2.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Team Name</span>
                       <input type="text" />
                     </div>
-                  ))
-                : null}
-            </div>
-            <div className="bracket-initial">
-              {grids3
-                ? grids3.map(grid => (
+                  ))}{" "}
+                </div>
+              ) : null}
+              {grids3 ? (
+                <div className="bracket-initial">
+                  {" "}
+                  {grids3.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Team Name</span>
                       <input type="text" />
                     </div>
-                  ))
-                : null}
-            </div>
-            <div className="bracket-initial">
-              {grids4
-                ? grids4.map(grid => (
+                  ))}{" "}
+                </div>
+              ) : null}
+              {grids4 ? (
+                <div className="bracket-initial">
+                  {" "}
+                  {grids4.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Team Name</span>
                       <input type="text" />
                     </div>
-                  ))
-                : null}
-            </div>
-            <div className="bracket-initial">
-              {grids5
-                ? grids5.map(grid => (
+                  ))}{" "}
+                </div>
+              ) : null}
+              {grids5 ? (
+                <div className="bracket-initial">
+                  {" "}
+                  {grids5.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Team Name</span>
                       <input type="text" />
                     </div>
-                  ))
-                : null}
+                  ))}{" "}
+                </div>
+              ) : null}
             </div>
-          </div>
-        </section>
+            <button className="btn btn-info" onClick={() => setShow(false)}>
+              New
+            </button>
+          </section>
+        ) : null}
       </div>
     </div>
   );
