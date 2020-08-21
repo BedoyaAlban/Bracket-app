@@ -23,9 +23,9 @@ const App = () => {
   const [grids5, setGrids5] = useState();
 
   const initialBracket = () => {
-    const grid = loop(numberTeams);
+    const grid = loop(numberTeams / 2);
     setGrids(grid);
-    const grid1 = loop(numberTeams / 2);
+    const grid1 = loop(grid.length / 2);
     setGrids1(grid1);
     if (numberTeams >= 5) {
       const grid2 = loop(grid1.length / 2);
@@ -178,7 +178,7 @@ const App = () => {
                 <input
                   type="number"
                   name="numberOfTeams"
-                  value={numberTeams}
+                  value={numberTeams || 0}
                   onChange={HandleChangeNumbTeams}
                   className="form-control"
                   placeholder="Number-of-Teams"
@@ -236,8 +236,15 @@ const App = () => {
                   {" "}
                   {grids.map(grid => (
                     <div key={grid.grid} className="bracket">
-                      <span className="team-name">Team Name</span>
-                      <input type="text" />
+                      <span className="team-name">Round 1</span>
+                      <input type="text" placeholder="Team Name" />
+                      <div className="date-picker">
+                        <DatePicker
+                          value={tournament.startingDate}
+                          onChange={HandleChangeTSDate}
+                        />
+                      </div>
+                      <input type="text" placeholder="Team Name" />
                     </div>
                   ))}{" "}
                 </div>
@@ -246,9 +253,11 @@ const App = () => {
                 <div className="bracket-initial">
                   {" "}
                   {grids1.map(grid => (
-                    <div key={grid.grid} className="bracket">
-                      <span className="team-name">Team Name</span>
-                      <input type="text" />
+                    <div key={grid.grid} className="bracket b-2">
+                      <span className="team-name">Round 2</span>
+                      <input type="text" placeholder="Team Name" />
+
+                      <input type="text" placeholder="Team Name" />
                     </div>
                   ))}{" "}
                 </div>
@@ -258,8 +267,10 @@ const App = () => {
                   {" "}
                   {grids2.map(grid => (
                     <div key={grid.grid} className="bracket">
-                      <span className="team-name">Team Name</span>
-                      <input type="text" />
+                      <span className="team-name">Round 3</span>
+                      <input type="text" placeholder="Team Name" />
+
+                      <input type="text" placeholder="Team Name" />
                     </div>
                   ))}{" "}
                 </div>
@@ -269,8 +280,10 @@ const App = () => {
                   {" "}
                   {grids3.map(grid => (
                     <div key={grid.grid} className="bracket">
-                      <span className="team-name">Team Name</span>
-                      <input type="text" />
+                      <span className="team-name">Round 4</span>
+                      <input type="text" placeholder="Team Name" />
+
+                      <input type="text" placeholder="Team Name" />
                     </div>
                   ))}{" "}
                 </div>
@@ -280,8 +293,10 @@ const App = () => {
                   {" "}
                   {grids4.map(grid => (
                     <div key={grid.grid} className="bracket">
-                      <span className="team-name">Team Name</span>
-                      <input type="text" />
+                      <span className="team-name">Round 5</span>
+                      <input type="text" placeholder="Team Name" />
+
+                      <input type="text" placeholder="Team Name" />
                     </div>
                   ))}{" "}
                 </div>
@@ -291,8 +306,10 @@ const App = () => {
                   {" "}
                   {grids5.map(grid => (
                     <div key={grid.grid} className="bracket">
-                      <span className="team-name">Team Name</span>
-                      <input type="text" />
+                      <span className="team-name">Round 6</span>
+                      <input type="text" placeholder="Team Name" />
+
+                      <input type="text" placeholder="Team Name" />
                     </div>
                   ))}{" "}
                 </div>

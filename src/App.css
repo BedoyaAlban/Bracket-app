@@ -29,10 +29,16 @@
 
 .bracket {
   background-color: #fff;
-  border-radius: .5em;
+  border-radius: 0.5em;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  justify-content: space-around;
+}
+
+.b-2 {
+  flex-basis: 200px !important;
 }
 
 .error-message {
