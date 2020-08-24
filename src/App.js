@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { useState } from "react";
 import DatePicker from "react-date-picker";
 import "./App.css";
@@ -7,14 +8,13 @@ const App = () => {
     tournamentName: "",
     startingDate: new Date(),
     endingDate: new Date(),
-    numbTeams: 0
+    numbTeams: ""
   });
   const [show, setShow] = useState(false);
   const [dateStart, setDateStart] = useState(false);
   const [dateEnd, setDateEnd] = useState(false);
   const [oddNumber, setOddNumber] = useState(false);
 
-  const [numberTeams, setNumberTeams] = useState();
   const [grids, setGrids] = useState();
   const [grids1, setGrids1] = useState();
   const [grids2, setGrids2] = useState();
@@ -23,22 +23,24 @@ const App = () => {
   const [grids5, setGrids5] = useState();
 
   const initialBracket = () => {
-    const grid = loop(numberTeams / 2);
+    const grid = loop(tournament.numbTeams / 2);
     setGrids(grid);
-    const grid1 = loop(grid.length / 2);
-    setGrids1(grid1);
-    if (numberTeams >= 5) {
-      const grid2 = loop(grid1.length / 2);
-      setGrids2(grid2);
-      if (numberTeams >= 9) {
-        const grid3 = loop(grid2.length / 2);
-        setGrids3(grid3);
-        if (numberTeams >= 17) {
-          const grid4 = loop(grid3.length / 2);
-          setGrids4(grid4);
-          if (numberTeams >= 33) {
-            const grid5 = loop(grid4.length / 2);
-            setGrids5(grid5);
+    if (grid.length > 1) {
+      const grid1 = loop(grid.length / 2);
+      setGrids1(grid1);
+      if (grid.length >= 3) {
+        const grid2 = loop(grid1.length / 2);
+        setGrids2(grid2);
+        if (grid.length >= 5) {
+          const grid3 = loop(grid2.length / 2);
+          setGrids3(grid3);
+          if (grid.length >= 7) {
+            const grid4 = loop(grid3.length / 2);
+            setGrids4(grid4);
+            if (grid.length >= 15) {
+              const grid5 = loop(grid4.length / 2);
+              setGrids5(grid5);
+            }
           }
         }
       }
@@ -100,7 +102,10 @@ const App = () => {
     } else {
       setOddNumber(false);
     }
-    setNumberTeams(event.target.value);
+    setTournament({
+      ...tournament,
+      numbTeams: event.target.value
+    });
   };
 
   const isEven = value => {
@@ -108,18 +113,32 @@ const App = () => {
     else return false;
   };
 
+  const FormatDate = str => moment(str).format("YYYY-MM-DD");
+
+  const newBracket = () => {
+    setShow(false);
+    setTournament({
+      tournamentName: "",
+      startingDate: new Date(),
+      endingDate: new Date(),
+      numbTeams: ""
+    });
+    setGrids2(null);
+    setGrids3(null);
+    setGrids4(null);
+    setGrids5(null);
+  };
+
   /* TODO LIST:
-  - User can enter the date for each match
-  - User can enter the final score for each match
   - User can expect that this data will persist across sessions
   */
 
   return (
     <div className="App">
-      <div className="container">
+      <div className="container-fluid">
         <h1>Create Bracket Tournament</h1>
         {show ? null : (
-          <section>
+          <section className="container">
             <div className="form-group">
               <div className="input-group mb-1">
                 <div className="input-group-prepend">
@@ -178,7 +197,7 @@ const App = () => {
                 <input
                   type="number"
                   name="numberOfTeams"
-                  value={numberTeams || 0}
+                  value={tournament.numbTeams}
                   onChange={HandleChangeNumbTeams}
                   className="form-control"
                   placeholder="Number-of-Teams"
@@ -237,14 +256,29 @@ const App = () => {
                   {grids.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Round 1</span>
-                      <input type="text" placeholder="Team Name" />
-                      <div className="date-picker">
-                        <DatePicker
-                          value={tournament.startingDate}
-                          onChange={HandleChangeTSDate}
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
                         />
                       </div>
-                      <input type="text" placeholder="Team Name" />
+                      <input
+                        type="date"
+                        className="match-date"
+                        defaultValue={FormatDate(tournament.startingDate)}
+                        min={FormatDate(tournament.startingDate)}
+                        max={FormatDate(tournament.endingDate)}
+                      />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
                     </div>
                   ))}{" "}
                 </div>
@@ -255,9 +289,29 @@ const App = () => {
                   {grids1.map(grid => (
                     <div key={grid.grid} className="bracket b-2">
                       <span className="team-name">Round 2</span>
-                      <input type="text" placeholder="Team Name" />
-
-                      <input type="text" placeholder="Team Name" />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
+                      <input
+                        type="date"
+                        className="match-date"
+                        defaultValue={FormatDate(tournament.startingDate)}
+                        min={FormatDate(tournament.startingDate)}
+                        max={FormatDate(tournament.endingDate)}
+                      />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
                     </div>
                   ))}{" "}
                 </div>
@@ -266,11 +320,31 @@ const App = () => {
                 <div className="bracket-initial">
                   {" "}
                   {grids2.map(grid => (
-                    <div key={grid.grid} className="bracket">
+                    <div key={grid.grid} className="bracket b-3">
                       <span className="team-name">Round 3</span>
-                      <input type="text" placeholder="Team Name" />
-
-                      <input type="text" placeholder="Team Name" />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
+                      <input
+                        type="date"
+                        className="match-date"
+                        defaultValue={FormatDate(tournament.startingDate)}
+                        min={FormatDate(tournament.startingDate)}
+                        max={FormatDate(tournament.endingDate)}
+                      />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
                     </div>
                   ))}{" "}
                 </div>
@@ -279,11 +353,31 @@ const App = () => {
                 <div className="bracket-initial">
                   {" "}
                   {grids3.map(grid => (
-                    <div key={grid.grid} className="bracket">
+                    <div key={grid.grid} className="bracket b-4">
                       <span className="team-name">Round 4</span>
-                      <input type="text" placeholder="Team Name" />
-
-                      <input type="text" placeholder="Team Name" />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
+                      <input
+                        type="date"
+                        className="match-date"
+                        defaultValue={FormatDate(tournament.startingDate)}
+                        min={FormatDate(tournament.startingDate)}
+                        max={FormatDate(tournament.endingDate)}
+                      />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
                     </div>
                   ))}{" "}
                 </div>
@@ -294,9 +388,29 @@ const App = () => {
                   {grids4.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Round 5</span>
-                      <input type="text" placeholder="Team Name" />
-
-                      <input type="text" placeholder="Team Name" />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
+                      <input
+                        type="date"
+                        className="match-date"
+                        defaultValue={FormatDate(tournament.startingDate)}
+                        min={FormatDate(tournament.startingDate)}
+                        max={FormatDate(tournament.endingDate)}
+                      />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
                     </div>
                   ))}{" "}
                 </div>
@@ -307,15 +421,35 @@ const App = () => {
                   {grids5.map(grid => (
                     <div key={grid.grid} className="bracket">
                       <span className="team-name">Round 6</span>
-                      <input type="text" placeholder="Team Name" />
-
-                      <input type="text" placeholder="Team Name" />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
+                      <input
+                        type="date"
+                        className="match-date"
+                        defaultValue={FormatDate(tournament.startingDate)}
+                        min={FormatDate(tournament.startingDate)}
+                        max={FormatDate(tournament.endingDate)}
+                      />
+                      <div className="match-details">
+                        <input type="text" placeholder="Team Name" />
+                        <input
+                          type="text"
+                          className="score"
+                          placeholder="score"
+                        />
+                      </div>
                     </div>
                   ))}{" "}
                 </div>
               ) : null}
             </div>
-            <button className="btn btn-info" onClick={() => setShow(false)}>
+            <button className="btn btn-info" onClick={() => newBracket()}>
               New
             </button>
           </section>
